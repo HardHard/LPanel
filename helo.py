@@ -8,7 +8,7 @@ from flask.ext.login import login_user , logout_user , current_user , login_requ
 import os
 from classes.categore import *
 import init.confdb
-#ghg
+#test Coment
 
 from flask.ext.login import LoginManager
 app = Flask(__name__)

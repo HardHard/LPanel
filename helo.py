@@ -8,6 +8,9 @@ from flask.ext.login import login_user , logout_user , current_user , login_requ
 import os
 from classes.categore import *
 import init.confdb
+from flask.ext.wtf import Form
+from wtforms import Form, BooleanField, StringField, PasswordField, validators,  TextAreaField
+
 #test Coment
 
 from flask.ext.login import LoginManager
@@ -23,7 +26,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-
+class AddCats(Form):
+    namecats = StringField("namecats", [validators.Length(min=1, max=25)])
+    comentcats = TextAreaField("comentcats", [validators.Length(min=1, max=100)])
+    pass
 
 # Test
 try:
@@ -196,12 +202,15 @@ def categories(cat):
 @app.route('/addcats',methods=['GET','POST'])
 # @login_required # Login
 def addcats():
-    print request.method
-    if request.method == 'POST':
+    forms = AddCats(request.form)
+    if request.method == 'POST' and forms.submit():
+        print forms.namecats.data
+        return 'OK'
 
         pass
     elif request.method == 'GET':
-        return render_template("addcats.html")
+
+        return render_template("addcats.html", form = forms)
 
 
 

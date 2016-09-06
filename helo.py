@@ -16,7 +16,7 @@ app = Flask(__name__)
 #Config
 app.config.from_object(init.confdb.DBcong)
 
-
+print app.config
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
@@ -95,6 +95,8 @@ login_manager.login_view = 'login'
 
 @app.route('/',methods=['GET','POST'])
 def login():
+
+
     print current_user.is_authenticated
 
     # if current_user.is_authenticated == True:
@@ -122,6 +124,7 @@ def login():
 @app.route('/index')
 @login_required
 def index():
+    # Delete Register
     if current_user.is_authenticated == False:
         return redirect(url_for('login'))
     return render_template("index.html")
@@ -186,6 +189,25 @@ def categories(cat):
     print cat
 
     return render_template("cod.html", title='Cod', cod='cod')
+
+
+
+
+@app.route('/addcats',methods=['GET','POST'])
+# @login_required # Login
+def addcats():
+    print request.method
+    if request.method == 'POST':
+
+        pass
+    elif request.method == 'GET':
+        return render_template("addcats.html")
+
+
+
+
+
+
 
 
 

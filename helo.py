@@ -6,10 +6,11 @@ from sqlalchemy import exc
 from functools import wraps
 from flask.ext.login import login_user , logout_user , current_user , login_required, user_logged_in
 import os
-from classes.categore import *
+from classes.categore import Cat
+from fun.tools import QCat
 import init.confdb
 from flask.ext.wtf import Form
-from wtforms import Form, BooleanField, StringField, PasswordField, validators,  TextAreaField
+from wtforms import Form, BooleanField, StringField, PasswordField, validators,  TextAreaField, SelectMultipleField
 
 #test Coment
 
@@ -19,7 +20,6 @@ app = Flask(__name__)
 #Config
 app.config.from_object(init.confdb.DBcong)
 
-print app.config
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
@@ -28,23 +28,28 @@ login_manager.init_app(app)
 
 class AddCats(Form):
     namecats = StringField("namecats", [validators.Length(min=1, max=25)])
-    comentcats = TextAreaField("comentcats", [validators.Length(min=1, max=100)])
-    pass
+    comentcats = TextAreaField("comentcats", [validators.Length(min=1, max=220)])
+
+class CatPrintForm(Form):
+    Cat = SelectMultipleField(choices=[])
+
 
 # Test
-try:
-    admins = Cat('4adffddf555', 'admdfhfhha7mple.co55','12ffhg556')
-
-    # db.create_all() # In case user table doesn't exists already. Else remove it.
-
-    db.session.add(admins)
-    #
-    db.session.flush() # This is needed to write the changes to database
-
-except exc.IntegrityError, exc:
-
-    if "Duplicate" in exc.message:
-        print "Neme Cat Used"
+# try:
+#
+#     #admins = Cat('4adffddf555', 'admdfhfhha7mple.co55')
+#
+#     #db.create_all() # In case user table doesn't exists already. Else remove it.
+#
+#     # db.session.add(admins)
+#     # #
+#     # db.session.commit()
+#     #db.session.flush() # This is needed to write the changes to database
+#
+# except exc.IntegrityError, exc:
+#
+#     if "Duplicate" in exc.message:
+#         print "Neme Cat Used"
 
 
 #end Test
@@ -201,16 +206,37 @@ def categories(cat):
 
 @app.route('/addcats',methods=['GET','POST'])
 # @login_required # Login
+
 def addcats():
+
+
+
+
     forms = AddCats(request.form)
-    if request.method == 'POST' and forms.submit():
+    if request.method == 'POST' and forms.validate():
         print forms.namecats.data
-        return 'OK'
+        print forms.comentcats.data
+        cname = Cat(forms.namecats.data, forms.comentcats.data)
+        # cname.create()
+        # db.create_all() # In case user table doesn't exists already. Else remove it.
+        db.session.add(cname)
+        #
+        db.session.commit()
+        flash('Cat Add',"Cat")
+        return redirect(url_for('addcats'))
+    formcatdel = CatPrintForm(request.form)
 
-        pass
+    if request.method == 'POST' and formcatdel.validate():
+        print "POST request and form is valid"
+        language = request.form['language']
+        formcatdel.language.choices = [('retert', 'trert+'), ('pterty', 'Pyttertehon'), ('tetetxt', 'Ptett')]
+        print "languages in wsgi.py: %s" % request.form['language']
+
+
+
     elif request.method == 'GET':
-
-        return render_template("addcats.html", form = forms)
+        formcatdel.Cat.choices = QCat()
+        return render_template("addcats.html", form = forms, formcat=formcatdel)
 
 
 

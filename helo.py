@@ -11,7 +11,7 @@ from fun.tools import  QQ
 import init.confdb
 from flask.ext.wtf import Form
 from wtforms import Form, BooleanField, StringField, PasswordField, validators,  TextAreaField, SelectMultipleField
-
+import os
 #test Coment
 
 from flask.ext.login import LoginManager
@@ -197,10 +197,13 @@ def settings():
 
 
 @app.route('/cod')
-@login_required
+# @login_required
 def cod():
-    pass
-    return render_template("cod.html", title='Cod', cod='cod')
+
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    cod = open( dir_path + "\\simple-code\\simple.php").read()
+    return render_template("cod.html", title='Cod', cod=cod)
 
 
 

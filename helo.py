@@ -7,7 +7,7 @@ from functools import wraps
 from flask.ext.login import login_user , logout_user , current_user , login_required, user_logged_in
 import os
 from classes.categore import Cat
-from fun.tools import QCat
+from fun.tools import  QQ
 import init.confdb
 from flask.ext.wtf import Form
 from wtforms import Form, BooleanField, StringField, PasswordField, validators,  TextAreaField, SelectMultipleField
@@ -33,6 +33,10 @@ class AddCats(Form):
 class CatPrintForm(Form):
     Cat = SelectMultipleField(choices=[])
 
+class CatEditForm(Form):
+    idcats = StringField("idcats", [validators.Length(min=1, max=25)])
+    namecats = StringField("namecats", [validators.Length(min=1, max=250)])
+    commcats = StringField("commcats", [validators.Length(min=1, max=250)])
 
 # Test
 # try:
@@ -53,6 +57,23 @@ class CatPrintForm(Form):
 
 
 #end Test
+
+def QCat():
+    cohoselist = []
+    query = db.session.query(Cat).all()
+    for item in query:
+
+        cohoselist.append((item.id, item.namecat))
+    return cohoselist
+
+
+def EditCat():
+    cohoselist = []
+    query = db.session.query(Cat).all()
+    for item in query:
+
+        cohoselist.append((item.id, item.namecat, item.comcat))
+    return cohoselist
 
 
 class User(db.Model):
@@ -224,25 +245,52 @@ def addcats():
         db.session.commit()
         flash('Cat Add',"Cat")
         return redirect(url_for('addcats'))
+
+    return render_template("addcats.html", form = forms)
+
+
+
+
+@app.route('/deletecat',methods=['GET','POST'])
+# @login_required # Login
+
+def deletecat():
+    print QCat()
     formcatdel = CatPrintForm(request.form)
+    print request.method
+    if request.method == 'POST' :
+        print formcatdel.Cat.data
+        db.session.query(Cat).filter(Cat.id == formcatdel.Cat.data[0]).delete(synchronize_session=False)
+        # db.session.add(admin)
 
-    if request.method == 'POST' and formcatdel.validate():
-        print "POST request and form is valid"
-        language = request.form['language']
-        formcatdel.language.choices = [('retert', 'trert+'), ('pterty', 'Pyttertehon'), ('tetetxt', 'Ptett')]
-        print "languages in wsgi.py: %s" % request.form['language']
+        db.session.commit() # This is needed to write the changes to database
 
-
+        flash('Cat Del',"Cat")
+        return redirect(url_for('deletecat'))
 
     elif request.method == 'GET':
+
         formcatdel.Cat.choices = QCat()
-        return render_template("addcats.html", form = forms, formcat=formcatdel)
+        return render_template("delcats.html",  formcat=formcatdel)
 
 
 
 
 
 
+@app.route('/editcat',methods=['GET','POST'])
+# @login_required # Login
+
+def editcat():
+    if request.method == 'POST':
+        form = CatEditForm(request.form)
+        print form.idcats.data
+        print form.namecats.data
+        print form.commcats.data
+
+    result = EditCat()
+    # print result
+    return render_template("editcats.html", result =  result)
 
 
 

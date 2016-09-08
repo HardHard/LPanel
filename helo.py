@@ -282,14 +282,24 @@ def deletecat():
 # @login_required # Login
 
 def editcat():
+    # for c in db.session.query(Cat).all():
+    #     print c
+    #     c.comcat = c.comcat + "ff"
+
+    # db.session.commit()
     if request.method == 'POST':
         form = CatEditForm(request.form)
         print form.idcats.data
         print form.namecats.data
         print form.commcats.data
 
+        db.session.query(Cat).filter(Cat.id == form.idcats.data).update({'namecat': form.namecats.data,'comcat': form.commcats.data})
+        db.session.commit()
+        flash('Cat Edit', "Cat")
+        return redirect(url_for('editcat'))
+
     result = EditCat()
-    # print result
+    print result
     return render_template("editcats.html", result =  result)
 
 

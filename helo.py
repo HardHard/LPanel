@@ -10,7 +10,7 @@ from classes.categore import Cat
 from fun.tools import  QQ
 import init.confdb
 from flask.ext.wtf import Form
-from wtforms import Form, BooleanField, StringField, PasswordField, validators,  TextAreaField, SelectMultipleField
+from wtforms import Form, BooleanField, StringField, PasswordField, validators,  TextAreaField, SelectMultipleField, SelectField
 import os
 #test Coment
 
@@ -25,6 +25,92 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+class Links(db.Model):
+    idlink = db.Column(db.Integer, primary_key=True)
+    idurlcat = db.Column(db.String(25))
+    link = db.Column(db.String(900))
+    delimiter = db.Column(db.String(900))
+    encoding = db.Column(db.String(200))
+
+    def __init__(self, idurlcat,  link, delimiter, encoding ):
+
+        self.idurlcat = idurlcat
+        self.link = link
+        self.delimiter = delimiter
+        self.encoding = encoding
+
+    def create(self):
+        db.create_all()
+
+
+    def __repr__(self):
+        return '<Links {0},{1},{2},{3},{4}>'.format(self.idlink, self.idurlcat, self.link, self.delimiter, self.encoding )
+
+
+l = Links(1,1,1,1)
+l.create()
+
+
+class UrlCat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    idcat = db.Column(db.String(25), unique=True)
+    url = db.Column(db.String(500))
+    pr = db.Column(db.String(10))
+    tc = db.Column(db.String(10))
+    spam = db.Column(db.String(50))
+    indexgo = db.Column(db.String(10))
+    indexya = db.Column(db.String(10))
+    datareg = db.Column(db.String(10))
+    ags = db.Column(db.String(10))
+
+    def __init__(self, idcat, url, pr, tc, spam, indexgo, indexya, datareg, ags):
+        self.idcat = idcat
+        self.url = url
+        self.pr = pr
+        self.tc = tc
+        self.spam = spam
+        self.indexgo = indexgo
+        self.indexya = indexya
+        self.datareg = datareg
+        self.ags = ags
+
+    def create(self):
+        db.create_all()
+
+    def __repr__(self):
+        return '<UrlCat {0},'.format(self.id, self.idcat, self.url, self.pr, self.tc, self.spam , self.indexgo ,
+                                                                    self.indexya, self.datareg, self.ags)
+
+u = UrlCat(1,2,3,4,5,6,7,8,9)
+u.create()
+
+
+
+class Project(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nameproject = db.Column(db.String(25))
+    listkey = db.Column(db.String(500))
+    listcontext = db.Column(db.Text() )
+    status = db.Column(db.String(500))
+
+    def __init__(self, nameproject, listkey, listcontext, status):
+        self.nameproject = nameproject
+        self.listkey = listkey
+        self.listcontext = listcontext
+        self.status = status
+
+
+    def create(self):
+        db.create_all()
+
+
+    def __repr__(self):
+        return '<Project {0},{1},{2},{3},{4}>'.format(self.id, self.nameproject , self.listkey, self.listcontext, self.status)
+
+
+p = Project(1,2,3,4)
+p.create()
+
 
 class AddCats(Form):
     namecats = StringField("namecats", [validators.Length(min=1, max=25)])
@@ -32,6 +118,12 @@ class AddCats(Form):
 
 class CatPrintForm(Form):
     Cat = SelectMultipleField(choices=[])
+
+class CatPrintFormSelect(Form):
+    Cat = SelectField(choices=[])
+    Encoding = SelectField(choices=[])
+    Url = StringField("Url", [validators.Length(min=1, max=250)])
+    Delimiter = TextAreaField("Delimiter", [validators.Length(min=1, max=900)])
 
 class CatEditForm(Form):
     idcats = StringField("idcats", [validators.Length(min=1, max=25)])
@@ -159,6 +251,9 @@ def index():
     # Delete Register
     if current_user.is_authenticated == False:
         return redirect(url_for('login'))
+    result = EditCat()
+    print result
+
     return render_template("index.html")
 
 
@@ -209,12 +304,35 @@ def cod():
 
 
 
-@app.route('/links')
-@login_required
+@app.route('/links',methods=['GET','POST'])
+#@login_required
 def links():
-    pass
 
-    return render_template("cod.html", title='Cod', cod='cod')
+    formcatdel = CatPrintFormSelect(request.form)
+    if request.method == 'POST' :
+        ## self.idlink, self.idurlcat, self.link, self.delimiter, self.encoding  ##
+        print formcatdel.Cat.data, "Cat"
+        print formcatdel.Url.data
+        print formcatdel.Delimiter.data
+        print formcatdel.Encoding.data
+        chekdubl =  Links.query.filter(Links.link == formcatdel.Url.data).all()
+        print chekdubl, "Dub"
+        if len(chekdubl) != 0:
+            flash(u'Duplicate Url', 'Links')
+            return redirect(url_for('links'))
+
+
+        cname = Links(formcatdel.Cat.data, formcatdel.Url.data, formcatdel.Delimiter.data, formcatdel.Encoding.data)
+        # cname.create()
+        # db.create_all() # In case user table doesn't exists already. Else remove it.
+        db.session.add(cname)
+        #
+        db.session.commit()
+    formcatdel.Cat.choices = QCat()
+    formcatdel.Encoding.choices  = [("utf-8", "utf-8"), ("windows-1251", "windows-1251")]
+
+
+    return render_template("makelinks.html", title='Cod', formcat=formcatdel)
 
 
 @app.route('/categories/<int:cat>')

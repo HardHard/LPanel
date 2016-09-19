@@ -242,7 +242,9 @@ def login():
     login_user(registered_user, remember = remember_me)
     flash('Logged in successfully')
     return redirect(url_for('index'))
-
+def sumcatnum(id):
+    AllCat = Links.query.filter(Links.idurlcat == id).all()
+    return AllCat
 def sumsitecat(data):
     Temp = []
     body = []
@@ -251,7 +253,10 @@ def sumsitecat(data):
     for item in data:
         print item
         id = id + 1
+        num =len(sumcatnum(item[0]))
+
         body.append(id)
+
         for ritem in item:
 
             print ritem
@@ -259,6 +264,7 @@ def sumsitecat(data):
             body.append(ritem)
             # body.append(ritem[1])
             # body.append(ritem[1])
+        body.append(num)
         Temp.append(tuple(body))
         del body[:]
     return Temp
@@ -278,8 +284,8 @@ def index():
 @login_required
 def cat(id):
     print id, "ffff"
-
-    return render_template("index.html")
+    sumcatnum(id)
+    return render_template("catview.html")
 
 @app.route('/logout')
 @login_required
@@ -287,7 +293,10 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-
+@app.route('/project')
+@login_required
+def project():
+    pass
 
 @app.route('/settings',methods=['GET','POST'])
 @login_required

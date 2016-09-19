@@ -243,7 +243,25 @@ def login():
     flash('Logged in successfully')
     return redirect(url_for('index'))
 
+def sumsitecat(data):
+    Temp = []
+    body = []
 
+    id = 0
+    for item in data:
+        print item
+        id = id + 1
+        body.append(id)
+        for ritem in item:
+
+            print ritem
+
+            body.append(ritem)
+            # body.append(ritem[1])
+            # body.append(ritem[1])
+        Temp.append(tuple(body))
+        del body[:]
+    return Temp
 
 @app.route('/index')
 @login_required
@@ -252,11 +270,16 @@ def index():
     if current_user.is_authenticated == False:
         return redirect(url_for('login'))
     result = EditCat()
-    print result
+    obr =     sumsitecat(result)
+
+    return render_template("index.html", formcat=obr)
+
+@app.route('/cat<id>')
+@login_required
+def cat(id):
+    print id, "ffff"
 
     return render_template("index.html")
-
-
 
 @app.route('/logout')
 @login_required

@@ -245,7 +245,7 @@
           <!-- general form elements -->
  <div class="col-md-8">
           <div class="box">
-	
+
             <div class="box-header with-border">
               <h3 class="box-title">Categories</h3>
             </div>
@@ -258,40 +258,19 @@
                   <th>Comments</th>
                   <th style="width: 40px">Quantity</th>
                 </tr>
-                <tr>
-                  <td>1.</td>
-                  <td>Pr-10</td>
+				  {% for cat in formcat %}
+                 <tr>
+                  <td>{{ cat[0] }}</td>
+                  <td><a href="/cat{{ cat[1] }}">{{ cat[2] }}</a></td>
                   <td>
                     <div >
-                      Ru Sites
+                      {{ cat[3] }}
                     </div>
                   </td>
                   <td><span class="badge bg-red">150</span></td>
                 </tr>
-                <tr>
-                  <td>2.</td>
-                  <td>Pr-20</td>
-                  <td>
-               Ru Sites
-                  </td>
-                  <td><span class="badge bg-yellow">30</span></td>
-                </tr>
-                <tr>
-                  <td>3.</td>
-                  <td>Pr-30</td>
-                  <td>
-      Ru Sites
-                  </td>
-                  <td><span class="badge bg-light-blue">30</span></td>
-                </tr>
-                <tr>
-                  <td>4.</td>
-                  <td>Pr-40</td>
-                  <td>
-      Ru Sites
-                  </td>
-                  <td><span class="badge bg-green">90</span></td>
-                </tr>
+				   {% endfor %}
+               
               </table>
             </div>
             <!-- /.box-body -->
